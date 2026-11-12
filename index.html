@@ -339,7 +339,9 @@ svg.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;str
 .archive_board .mk .ty b.y{background:var(--wt);box-shadow:inset 0 0 0 1px var(--gr);color:var(--gr);font-weight:700}
 .archive_board .mk .ty b.n{background:#f4f5f7;color:#c6cad0;font-weight:400}
 .archive_board .mk .vl{width:1px;height:14px;background:var(--ln3);margin:0 14px}
-.b_exp{grid-column:1/-1;margin-top:16px;padding:16px 24px 10px 16px;background:var(--top);border:1px solid var(--ln)}
+.archive_board>li[data-act="bexp"]{cursor:pointer}
+.archive_board>li[data-act="bexp"]:hover{background:var(--top)}
+.b_exp{grid-column:1/-1;margin-top:16px;padding:16px 24px 10px 16px;background:var(--wt);border:1px solid var(--ln3)}
 .b_exp .fr{display:grid;grid-template-columns:70px 1fr;align-items:center;height:24px}
 .b_exp .fl_lb{font-size:13px;font-weight:700;white-space:nowrap}
 .b_exp .fl_tk{position:relative;height:24px;border-right:1px solid var(--ln3);background:linear-gradient(to right,var(--ln3) 1px,transparent 1px) 0 0/20% 100%}
@@ -620,7 +622,7 @@ function renderB(){
   h+='<div class="selected_optional-wrap"><dl><dt>선택한 항목</dt><dd><ul>'+chosen.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></dd></dl><button type="button" data-act="breset">초기화</button></div>';
   if(bs.dom!=='D1')h+='<p class="b-info">근거 자료·연표는 D1만 제공</p>';
   h+='<ul class="archive_board">'+(ts.length?'':'<li><p class="empty" style="width:100%">해당 과제 없음</p></li>')+ts.map(t=>{const n=(DB.E[t[0]]||[]).length;
-    return '<li><div class="left_num"><p>'+esc(t[0])+'</p></div><div class="right_content"><p class="subject">제'+t[1]+'차 종합계획<i class="location_arrow">▸</i>'+t[2]+' '+esc(DOMN[t[2]])+'</p><p class="upper mk"><span class="lb">도달단계</span><span class="st">'+[...t[4]].map((x,i)=>'<b class="'+(x==='1'?'y':'n')+'" title="'+CIR[i]+' '+ST[i][0]+(x==='1'?'':' 미확인')+'">'+(i+1)+'</b>').join('')+'</span><i class="vl"></i><span class="lb">근거유형</span><span class="ty">'+t[5].map((x,i)=>'<b class="'+(x?'y':'n')+'" title="'+TYL[i]+' '+TY[TYL[i]][0]+' '+x+'건">'+TYL[i]+'</b>').join('')+'</span></p><div class="title"><strong>'+esc(t[3])+'</strong></div><div class="btn_wrap"><button type="button" data-act="tasktl" data-v="'+t[0]+'"'+(t[2]==='D1'&&n?'':' disabled')+'>과제 시계열 +</button><button type="button" data-act="domtl2" data-v="'+t[2]+'">도메인 시계열 +</button>'+(t[2]==='D1'&&n?'<button type="button" data-act="bexp" data-v="'+t[0]+'" aria-expanded="'+bOpen.has(t[0])+'">단계별 흐름 '+(bOpen.has(t[0])?'−':'+')+'</button>':'')+'</div>'+(bOpen.has(t[0])&&n?flow(t[0]):'')+'</div></li>'}).join('')+'</ul></div>';
+    return '<li'+(t[2]==='D1'&&n?' data-act="bexp" data-v="'+t[0]+'" aria-expanded="'+bOpen.has(t[0])+'"':'')+'><div class="left_num"><p>'+esc(t[0])+'</p></div><div class="right_content"><p class="subject">제'+t[1]+'차 종합계획<i class="location_arrow">▸</i>'+t[2]+' '+esc(DOMN[t[2]])+'</p><p class="upper mk"><span class="lb">도달단계</span><span class="st">'+[...t[4]].map((x,i)=>'<b class="'+(x==='1'?'y':'n')+'" title="'+CIR[i]+' '+ST[i][0]+(x==='1'?'':' 미확인')+'">'+(i+1)+'</b>').join('')+'</span><i class="vl"></i><span class="lb">근거유형</span><span class="ty">'+t[5].map((x,i)=>'<b class="'+(x?'y':'n')+'" title="'+TYL[i]+' '+TY[TYL[i]][0]+' '+x+'건">'+TYL[i]+'</b>').join('')+'</span></p><div class="title"><strong>'+esc(t[3])+'</strong></div><div class="btn_wrap"><button type="button" data-act="tasktl" data-v="'+t[0]+'"'+(t[2]==='D1'&&n?'':' disabled')+'>과제 시계열 +</button><button type="button" data-act="domtl2" data-v="'+t[2]+'">도메인 시계열 +</button>'+'</div>'+(bOpen.has(t[0])&&n?flow(t[0]):'')+'</div></li>'}).join('')+'</ul></div>';
   $('#sub_content').innerHTML=h;
 }
 /* 화면 A: 첫 화면 */
