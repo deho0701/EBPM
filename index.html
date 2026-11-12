@@ -326,6 +326,29 @@ svg.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;str
 .archive_board .btn_wrap button:hover:not(:disabled),.jbtns button:hover{border-color:var(--gr);color:var(--gr)}
 .archive_board .btn_wrap button:disabled{opacity:.4}
 .b-info{font-size:14px;color:var(--tx);margin:10px 0}
+.archive_board .mk{display:flex;align-items:center;margin-top:6px}
+.archive_board .mk .lb{font-size:13px;color:var(--g7);margin-right:8px}
+.archive_board .mk .st,.archive_board .mk .ty{display:flex}
+.archive_board .mk b{width:24px;height:22px;line-height:22px;text-align:center;font-size:12px;font-variant-numeric:tabular-nums}
+.archive_board .mk .st b{margin-right:1px}
+.archive_board .mk .st b:first-child{border-radius:11px 0 0 11px}
+.archive_board .mk .st b:last-child{border-radius:0 11px 11px 0;margin-right:0}
+.archive_board .mk .st b.y{background:var(--gr);color:var(--wt);font-weight:700}
+.archive_board .mk .st b.n{background:#eceef1;color:#b4b9c1;font-weight:400}
+.archive_board .mk .ty b{margin-right:3px;border-radius:3px}
+.archive_board .mk .ty b.y{background:var(--wt);box-shadow:inset 0 0 0 1px var(--gr);color:var(--gr);font-weight:700}
+.archive_board .mk .ty b.n{background:#f4f5f7;color:#c6cad0;font-weight:400}
+.archive_board .mk .vl{width:1px;height:14px;background:var(--ln3);margin:0 14px}
+.b_exp{grid-column:1/-1;margin-top:16px;padding:16px 24px 10px 16px;background:var(--top);border:1px solid var(--ln)}
+.b_exp .fr{display:grid;grid-template-columns:70px 1fr;align-items:center;height:24px}
+.b_exp .fl_lb{font-size:13px;font-weight:700;white-space:nowrap}
+.b_exp .fl_tk{position:relative;height:24px;border-right:1px solid var(--ln3);background:linear-gradient(to right,var(--ln3) 1px,transparent 1px) 0 0/20% 100%}
+.b_exp .fl_tk i{position:absolute;top:7px;height:10px;border-radius:5px}
+.b_exp .fl_tk em{position:absolute;left:10px;top:3px;font-style:normal;font-size:12px;color:var(--g7)}
+.b_exp .ax{height:22px}
+.b_exp .fl_ax{position:relative;height:18px;font-size:12px;color:var(--g7)}
+.b_exp .fl_ax span{position:absolute;top:2px;transform:translateX(-50%)}
+.b_exp .fl_ax span:first-child{transform:none}
 .arc_menu{display:flex;border-bottom:2px solid var(--gr);margin-bottom:24px}
 .arc_menu button{height:46px;min-width:150px;padding:0 28px;font-size:16px;font-weight:700;color:var(--g4);border:1px solid var(--ln3);border-bottom:0;background:var(--wt);margin-right:-1px}
 .arc_menu button:hover{color:var(--gr)}
@@ -577,6 +600,17 @@ function renderPress(){
 function renderStat(){
   $('#sub_content').innerHTML='<h3>국가통계</h3>'+arcMenu()+'<div class="filter_board"><div class="board_top" style="margin-top:0"><span class="total">Total <em>'+STATS.length+'</em></span></div><ul class="archive_board">'+STATS.map((n,i)=>'<li><div class="left_num"><p>'+(i+1)+'</p></div><div class="right_content"><p class="subject">국가승인통계<i class="location_arrow">▸</i>격년 주기</p><div class="title"><strong>'+esc(n)+'</strong></div></div></li>').join('')+'</ul></div>';
 }
+const bOpen=new Set(),FLC=['#0b3f6b','#2a72ad','#2f8f6b','#cf8a23','#c93a45'],FLN=['의제','기획','결정','집행','평가'];
+function flow(id){
+  const ev=DB.E[id]||[];
+  return '<div class="b_exp">'+FLN.map((n,k)=>{
+    const es=ev.filter(e=>e[0]===k),ys=es.filter(e=>e[2]).map(e=>+e[2]).filter(y=>y>=2001&&y<=2025);
+    let bar='';
+    if(ys.length){const a=Math.min(...ys),b=Math.max(...ys);bar='<i style="left:'+(a-2001)*4+'%;width:'+(b-a+1)*4+'%;background:'+FLC[k]+'" title="'+(a===b?a:a+'~'+b)+' · '+es.length+'건"></i>'}
+    else if(es.length)bar='<em>연도 미상 '+es.length+'건</em>';
+    return '<div class="fr">'+(es.length?'<span class="fl_lb" style="color:'+FLC[k]+'">'+CIR[k]+' '+n+'</span>':'<span></span>')+'<div class="fl_tk">'+bar+'</div></div>'}).join('')+
+   '<div class="fr ax"><span></span><div class="fl_ax">'+[2001,2006,2011,2016,2021].map((y,i)=>'<span style="left:'+i*20+'%">'+y+'</span>').join('')+'</div></div></div>';
+}
 function renderB(){
   if(bm==='press')return renderPress();if(bm==='stat')return renderStat();
   const ts=bTasks(),o=(id,v,arr)=>'<select id="'+id+'" aria-label="'+arr[0][1]+'">'+arr.map(a=>'<option value="'+a[0]+'"'+(v===a[0]?' selected':'')+'>'+a[1]+'</option>').join('')+'</select>';
@@ -586,7 +620,7 @@ function renderB(){
   h+='<div class="selected_optional-wrap"><dl><dt>선택한 항목</dt><dd><ul>'+chosen.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></dd></dl><button type="button" data-act="breset">초기화</button></div>';
   if(bs.dom!=='D1')h+='<p class="b-info">근거 자료·연표는 D1만 제공</p>';
   h+='<ul class="archive_board">'+(ts.length?'':'<li><p class="empty" style="width:100%">해당 과제 없음</p></li>')+ts.map(t=>{const n=(DB.E[t[0]]||[]).length;
-    return '<li><div class="left_num"><p>'+esc(t[0])+'</p></div><div class="right_content"><p class="subject">제'+t[1]+'차 종합계획<i class="location_arrow">▸</i>'+t[2]+' '+esc(DOMN[t[2]])+'</p><p class="upper">도달단계 '+[...t[4]].map((x,i)=>x==='1'?'<b>'+CIR[i]+'</b>':'<span class="n">'+CIR[i]+'</span>').join(' ')+' / 근거유형 '+(t[5].some(x=>x)?t[5].map((x,i)=>x?TYL[i]+' '+x:'').filter(Boolean).join(' · '):'없음')+'</p><div class="title"><strong>'+esc(t[3])+'</strong></div><div class="btn_wrap"><button type="button" data-act="tasktl" data-v="'+t[0]+'"'+(t[2]==='D1'&&n?'':' disabled')+'>과제 시계열 +</button><button type="button" data-act="domtl2" data-v="'+t[2]+'">도메인 시계열 +</button></div></div></li>'}).join('')+'</ul></div>';
+    return '<li><div class="left_num"><p>'+esc(t[0])+'</p></div><div class="right_content"><p class="subject">제'+t[1]+'차 종합계획<i class="location_arrow">▸</i>'+t[2]+' '+esc(DOMN[t[2]])+'</p><p class="upper mk"><span class="lb">도달단계</span><span class="st">'+[...t[4]].map((x,i)=>'<b class="'+(x==='1'?'y':'n')+'" title="'+CIR[i]+' '+ST[i][0]+(x==='1'?'':' 미확인')+'">'+(i+1)+'</b>').join('')+'</span><i class="vl"></i><span class="lb">근거유형</span><span class="ty">'+t[5].map((x,i)=>'<b class="'+(x?'y':'n')+'" title="'+TYL[i]+' '+TY[TYL[i]][0]+' '+x+'건">'+TYL[i]+'</b>').join('')+'</span></p><div class="title"><strong>'+esc(t[3])+'</strong></div><div class="btn_wrap"><button type="button" data-act="tasktl" data-v="'+t[0]+'"'+(t[2]==='D1'&&n?'':' disabled')+'>과제 시계열 +</button><button type="button" data-act="domtl2" data-v="'+t[2]+'">도메인 시계열 +</button>'+(t[2]==='D1'&&n?'<button type="button" data-act="bexp" data-v="'+t[0]+'" aria-expanded="'+bOpen.has(t[0])+'">단계별 흐름 '+(bOpen.has(t[0])?'−':'+')+'</button>':'')+'</div>'+(bOpen.has(t[0])&&n?flow(t[0]):'')+'</div></li>'}).join('')+'</ul></div>';
   $('#sub_content').innerHTML=h;
 }
 /* 화면 A: 첫 화면 */
@@ -662,6 +696,7 @@ document.addEventListener('click',ev=>{
   else if(a==='bmenu'){bm=v;renderB();renderCrumb()}
   else if(a==='pyear'){ps.y=v;renderB()}
   else if(a==='pmore'){prOpen.has(v)?prOpen.delete(v):prOpen.add(v);renderB()}
+  else if(a==='bexp'){bOpen.has(v)?bOpen.delete(v):bOpen.add(v);renderB()}
   else if(a==='bdom'){bs.dom=v;renderB();renderCrumb()}
   else if(a==='breset'){bs={dom:bs.dom,cha:'all',st:'all',ty:'all'};renderB()}
   else if(a==='pick')select(b.dataset.k,false);
